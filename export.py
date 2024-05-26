@@ -44,7 +44,7 @@ print("--- Saving files in the project: ---")
 # git 
 has_repo=False
 
-save_folder=r'D:\Gitlab\codesys\Yao'
+save_folder=r'C:\Users\admin\Documents\CsysL\code'
 
 if not os.path.exists(save_folder):
 	os.makedirs(save_folder) 
@@ -203,15 +203,15 @@ if has_repo:
 	os.chdir(save_folder)
 	si = subprocess.STARTUPINFO()
 	si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	subprocess.call('"D:\\Program Files\\Git\\bin\\git.exe" add .', startupinfo=si)
-	subprocess.call('"D:\\Program Files\\Git\\bin\\git.exe" commit -m "'+time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))+'"', startupinfo=si)
+	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" add .', startupinfo=si)
+	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" commit -m "'+time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))+'"', startupinfo=si)
 else:
 	os.chdir(save_folder)
 	si = subprocess.STARTUPINFO()
 	si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	subprocess.call('"D:\\Program Files\\Git\\bin\\git.exe" init', startupinfo=si)#'cd '+ save_folder + " && " + 'git init')
-	subprocess.call('"D:\\Program Files\\Git\\bin\\git.exe" add .', startupinfo=si)
+	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" init', startupinfo=si)#'cd '+ save_folder + " && " + 'git init')
+	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" add .', startupinfo=si)
 
-	subprocess.call('"D:\\Program Files\\Git\\bin\\git.exe" commit -m "'+time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))+'"', startupinfo=si)
+	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" commit -m "'+time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))+'"', startupinfo=si)
 print("--- Script finished. ---")
 system.ui.info('save ok')
