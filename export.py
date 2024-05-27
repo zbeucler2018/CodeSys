@@ -1,11 +1,16 @@
-
+#!/bin/env python3
 # encoding:utf-8
 # We enable the new python 3 print syntax
 from __future__ import print_function
+
 import os
 import shutil
-import time
-import subprocess
+import clr
+from System import Environment
+
+clr.AddReference('System.Windows.Forms')
+from System.Windows.Forms import FolderBrowserDialog, DialogResult
+
 '''
 prop_method		= Guid('792f2eb6-721e-4e64-ba20-bc98351056db')
 tp				= Guid('2db5746d-d284-4425-9f7f-2663a34b0ebc') #dut
@@ -39,179 +44,191 @@ SoftMotion_General_Axis_Pool=Guid('e9159722-55bc-49e5-8034-fbd278ef718f')
 
 '''
 
-print("--- Saving files in the project: ---")
+type_dist = {
+    '792f2eb6-721e-4e64-ba20-bc98351056db': 'pm',  # property method
+    '2db5746d-d284-4425-9f7f-2663a34b0ebc': 'dut',  # dut
+    'adb5cb65-8e1d-4a00-b70a-375ea27582f3': 'lib',  # lib manager
+    'f89f7675-27f1-46b3-8abb-b7da8e774ffd': 'm',  # method no ret
+    '8ac092e5-3128-4e26-9e7e-11016c6684f2': 'act',  # action
+    '6f9dac99-8de1-4efc-8465-68ac443b7d08': 'pou',  # pou
+    '6654496c-404d-479a-aad2-8551054e5f1e': 'itf',  # interface
+    '738bea1e-99bb-4f04-90bb-a7a567e74e3a': '',  # folder
+    'ffbfa93a-b94d-45fc-a329-229860183b1d': 'gvl',  # global var
+    '5a3b8626-d3e9-4f37-98b5-66420063d91e': 'prop',  # property
+    '2bef0454-1bd3-412a-ac2c-af0f31dbc40f': 'tl',  # textlist
+    '63784cbb-9ba0-45e6-9d69-babf3f040511': 'gtl',  # global textlist
+    '225bfe47-7336-4dbc-9419-4105a7c831fa': 'dev',  # device
+    'ae1de277-a207-4a28-9efb-456c06bd52f3': 'tc',  # task configuration
+    'f8a58466-d7f6-439f-bbb8-d4600e41d099': 'm',  # method with ret
+    '261bd6e6-249c-4232-bb6f-84c2fbeef430': 'gvl',  # gvl_Persistent
+    '98a2708a-9b18-4f31-82ed-a1465b24fa2d': 'task',
+    '413e2a7d-adb1-4d2c-be29-6ae6e4fab820': '',  # Task_pou
+    '40b404f9-e5dc-42c6-907f-c89f4a517386': '',  # Plc Logic
+    '639b491f-5557-464c-af91-1471bac9f549': '',  # Application
+    'c3fc9989-e24b-4002-a2c7-827a0a2595f4': ''  # CheckDivLReal
+}
 
-# git 
-has_repo=False
 
-save_folder=r'C:\Users\admin\Documents\CsysL\code'
+def save(text, path, name, tp):
+    if not tp:
+        tp = ''
+    else:
+        tp = '.' + tp
+    with open(os.path.join(path, name + tp), 'w') as f:
+        f.write(text.encode('utf-8'))
 
-if not os.path.exists(save_folder):
-	os.makedirs(save_folder) 
-else:
-	#非空文件夹 删除多余
-	a=os.listdir(save_folder)
-	for f in a:
-		if not f.startswith("."): #保留 svn,git 目录
-			sub_path= os.path.join(save_folder,f)
-			if os.path.isdir(sub_path):
-				shutil.rmtree(sub_path)
-			else:
-				os.remove(sub_path)
-		elif f==".git":
-			has_repo=True
 
-info={}
+def print_tree(treeobj, depth, path, verbose=False):
+    # record current Path
+    cur_path = path
 
-type_dist={
-'792f2eb6-721e-4e64-ba20-bc98351056db':'pm',  #property method
-'2db5746d-d284-4425-9f7f-2663a34b0ebc':'dut',  #dut
-'adb5cb65-8e1d-4a00-b70a-375ea27582f3':'lib',  #lib manager
-'f89f7675-27f1-46b3-8abb-b7da8e774ffd':'m', 	 #method no ret
-'8ac092e5-3128-4e26-9e7e-11016c6684f2':'act',  #action 
-'6f9dac99-8de1-4efc-8465-68ac443b7d08':'pou',  #pou
-'6654496c-404d-479a-aad2-8551054e5f1e':'itf',  #interface 
-'738bea1e-99bb-4f04-90bb-a7a567e74e3a':'',	   # folder
-'ffbfa93a-b94d-45fc-a329-229860183b1d':'gvl',  #global var
-'5a3b8626-d3e9-4f37-98b5-66420063d91e':'prop', #property
-'2bef0454-1bd3-412a-ac2c-af0f31dbc40f':'tl',   #textlist
-'63784cbb-9ba0-45e6-9d69-babf3f040511':'gtl',  #global textlist
-'225bfe47-7336-4dbc-9419-4105a7c831fa':'dev',	 #device
-'ae1de277-a207-4a28-9efb-456c06bd52f3':'tc',   #task configuration
-'f8a58466-d7f6-439f-bbb8-d4600e41d099':'m',    #method with ret
-'261bd6e6-249c-4232-bb6f-84c2fbeef430':'gvl',   #gvl_Persistent
-'98a2708a-9b18-4f31-82ed-a1465b24fa2d':'task'
-};
+    t = ''  # text
+    tp = ''  # type
 
-def save(text,path,name,tp):
-	if not tp:
-		tp=''
-	else:
-		tp='.'+tp
-	with open(os.path.join(path,name+tp),'w') as f:
-		f.write(text.encode('utf-8'))
-'''
-def get_mtype(a):
-	b=a.text
-	b=b.split("\n")
-	for a in b: 
-		if a.find('FUNCTION_BLOCK ') >=0 :
-			return "fb"
-		elif a.find("FUNCTION ") >=0:
-			return "fct"
-		elif a.find('METHOD ')>=0 :
-			return "m"
-		elif a.find("INTERFACE ")>=0:
-			return "itf"
-		elif a.find("TYPE ")>=0:
-			#
-			return "tp"
-		elif a.find("PROPERTY ")>=0 or a.find("PROPERTY\r\n")>=0:
-			return "prop"
-		elif a.find("PROGRAM ")>=0 or a.find("PROGRAM\r\n")>=0:
-			return "prg"
-		elif a.find("VAR_GLOBAL")>=0 or a.find("VAR_CONFIG") >=0:
-			return 'gvl'
-	return ""
-'''			
-	
-def print_tree(treeobj, depth,path):
-	global info
-	#record current Path
-	curpath=path 
-	isfolder=False
-	
-	t='' #text
-	tp='' #type
-	
-	# get object name
-	name = treeobj.get_name(False)
-	id = treeobj.type.ToString()
-	
-	if id in type_dist:
-		tp = type_dist[treeobj.type.ToString()]
-	else:
-		info[id]=name
-		
-		
-	if treeobj.is_device:
-		deviceid = treeobj.get_device_identification()
-		t = 'type='+str(deviceid.type) +'\nid=' +str(deviceid.id) + '\nver='+ str(deviceid.version)
+    # get object name
+    name = treeobj.get_name(False)
+    id = treeobj.type.ToString()
 
-	try:
-		if treeobj.is_folder :
-			#system.ui.prompt('folder:'+u, PromptChoice.YesNo, PromptResult.Yes)
-			isfolder=true
-			pass
-	except:
-		pass
+    if not folder_specify: verbose = True
 
-	if treeobj.has_textual_declaration :
-		t=t+'(*#-#-#-#-#-#-#-#-#-#---Declaration---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
-		a=treeobj.textual_declaration
-		t=t+a.text
-		
-	if treeobj.has_textual_implementation:
-		t=t+'(*#-#-#-#-#-#-#-#-#-#---Implementation---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
-		a=treeobj.textual_implementation
-		t=t+a.text
-		
-	'''	
-	if treeobj.is_task_configuration:
-		exports=[treeobj]
-		projects.primary.export_native(exports,os.path.join(curpath,name+'.tc'))
-		
-	'''
-	
-	if treeobj.is_task :
-		exports=[treeobj]
-		projects.primary.export_native(exports,os.path.join(curpath,name+'.task'))
-	
-		
-	if treeobj.is_libman:
-		exports=[treeobj]
-		projects.primary.export_native(exports,os.path.join(curpath,name+'.lib'))
-	
-	if treeobj.is_textlist:
-		treeobj.export(os.path.join(curpath,name+'.tl'))
-		
-	children = treeobj.get_children(False)
+    if id in type_dist:
+        tp = type_dist[id]
+    else:
+        info[id] = name
 
-	if children or isfolder:
-		if tp:
-			curpath=os.path.join(curpath,name+'.'+tp)
-		else:
-			curpath=os.path.join(curpath,name)
-		
-		if not os.path.exists(curpath):
-			os.makedirs(curpath)
-			
-	if t:
-		save(t,curpath,name,tp)
+    if treeobj.is_device:
+        deviceid = treeobj.get_device_identification()
+        t = 'type=' + str(deviceid.type) + '\nid=' + str(deviceid.id) + '\nver=' + str(deviceid.version)
+    elif treeobj.is_folder:
+        pass
+    elif treeobj.is_task_configuration:
+        pass
+        # exports=[treeobj]
+        # projects.primary.export_native(exports,os.path.join(cur_path,name+'.tc'))
+    elif treeobj.is_task:
+        exports = [treeobj]
+        if verbose: projects.primary.export_native(exports, os.path.join(cur_path, name + '.task'))
+    elif treeobj.is_libman:
+        exports = [treeobj]
+        if verbose: projects.primary.export_native(exports, os.path.join(cur_path, name + '.lib'))
+    elif treeobj.is_textlist:
+        if verbose:  treeobj.export(os.path.join(cur_path, name + '.tl'))
+    else:
+        if treeobj.has_textual_declaration:
+            t = t + '(*#-#-#-#-#-#-#-#-#-#---Declaration---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
+            a = treeobj.textual_declaration
+            t = t + a.text
 
-	for child in treeobj.get_children(False):
-		print_tree(child, depth+1,curpath)
-		
+        if treeobj.has_textual_implementation:
+            t = t + '(*#-#-#-#-#-#-#-#-#-#---Implementation---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
+            a = treeobj.textual_implementation
+            t = t + a.text
 
-for obj in projects.primary.get_children():
-    print_tree(obj,0,save_folder)
+    children = treeobj.get_children(False)
 
-with open(os.path.join(save_folder,'s.txt'),'w') as f:
-	f.write(str(info))
+    if children:
+        if tp:
+            cur_path = os.path.join(cur_path, name + '.' + tp)
+        else:
+            cur_path = os.path.join(cur_path, name)
+        if not os.path.exists(cur_path):
+            os.makedirs(cur_path)
+        if name == folder_specify:
+            verbose = True
+        else:
+            verbose = False
 
-if has_repo:
-	os.chdir(save_folder)
-	si = subprocess.STARTUPINFO()
-	si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" add .', startupinfo=si)
-	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" commit -m "'+time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))+'"', startupinfo=si)
-else:
-	os.chdir(save_folder)
-	si = subprocess.STARTUPINFO()
-	si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" init', startupinfo=si)#'cd '+ save_folder + " && " + 'git init')
-	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" add .', startupinfo=si)
+    if t and verbose:
+        save(t, cur_path, name, tp)
 
-	subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" commit -m "'+time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()))+'"', startupinfo=si)
-print("--- Script finished. ---")
-system.ui.info('save ok')
+    for child in children:
+        print_tree(child, depth + 1, cur_path, verbose)
+
+
+def search_folder():
+    # 获取 MyDocuments 路径
+    root = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+    # 目标路径 CsysL
+    default_path = os.path.join(root, 'CsysL')
+    if not os.path.exists(default_path): default_path = os.path.join(root)
+
+    def browse_directory_dialog(description, selected_path):
+        dialog = FolderBrowserDialog()
+        dialog.Description = description
+        dialog.SelectedPath = selected_path  # 设置默认路径
+        dialog.ShowNewFolderButton = True
+
+        if dialog.ShowDialog() == DialogResult.OK:
+            return dialog.SelectedPath
+        return None
+
+    has_repo = False  # git
+    # 使用 browse_directory_dialog 函数
+    save_folder = browse_directory_dialog("Choose a directory？ 简: 选择保存位置。   ", default_path)
+    print("Nice, you choose: '%s'" % save_folder)
+    if save_folder:
+        if not os.path.exists(save_folder):
+            os.makedirs(save_folder)
+            return save_folder
+        else:
+            res = system.ui.prompt("Folder already existed.  !!! Delete !!!   ", PromptChoice.YesNo, PromptResult.Yes)
+            if res == PromptResult.Yes:
+                # 非空文件夹 删除多余
+                a = os.listdir(save_folder)
+                for f in a:
+                    if not f.startswith("."):  # 保留 svn,git 目录
+                        sub_path = os.path.join(save_folder, f)
+                        if os.path.isdir(sub_path):
+                            shutil.rmtree(sub_path)
+                        else:
+                            os.remove(sub_path)
+                    elif f == ".git":
+                        has_repo = True
+                return save_folder
+            else:
+                return
+    else:
+        return
+
+
+if __name__ == '__main__':
+    info = {}
+    print("--- Saving files in the project: ---")
+    print("Now we query a single line string: specified folder name")
+    folder_specify = system.ui.query_string("Which folder to export?  简: 保存谁？   ", text='cal_height_hook')
+    print("Nice, I get the folder name: %s." % folder_specify)
+
+    save_folder = search_folder()
+    # print(save_folder)
+    if save_folder:
+        for obj in projects.primary.get_children():
+            print_tree(obj, 0, save_folder)
+        if not folder_specify:
+            system.ui.info(' All codes are exported! ')
+        else:
+            system.ui.info(' Specified codes are exported! ')
+
+        # with open(os.path.join(save_folder, 's.txt'), 'w') as f:
+        #     f.write(str(info))
+    else:
+        system.ui.info("   Just Aborted!  ")
+        print("--- Script exit before saving files. ---")
+
+    # if has_repo:
+    #     os.chdir(save_folder)
+    #     si = subprocess.STARTUPINFO()
+    #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    #     subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" add .', startupinfo=si)
+    #     subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" commit -m "'+time.strftime('%Y-%m-%d %H:%M',
+    #     time.localtime(time.time()))+'"', startupinfo=si)
+    # else:
+    #     os.chdir(save_folder)
+    #     si = subprocess.STARTUPINFO()
+    #     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    #     subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" init', startupinfo=si)#'cd '+ save_folder + "
+    #     && " +
+    #     'git init')
+    #     subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" add .', startupinfo=si)
+    #
+    #     subprocess.call('"C:\\Program Files\\Git\\bin\\git.exe" commit -m "'+time.strftime('%Y-%m-%d %H:%M',
+    #     time.localtime(time.time()))+'"', startupinfo=si)
