@@ -166,16 +166,15 @@ def search_folder():
     # 使用 browse_directory_dialog 函数
     save_folder = browse_directory_dialog("Choose a directory？ 简: 选择保存位置。   ", default_path)
     print("Nice, you choose: '%s'" % save_folder)
+    list_dir = os.listdir(save_folder)
     if save_folder:
-        if not os.path.exists(save_folder):
-            os.makedirs(save_folder)
+        if not list_dir:
             return save_folder
         else:
             res = system.ui.prompt("Folder already existed.  !!! Delete !!!   ", PromptChoice.YesNo, PromptResult.Yes)
             if res == PromptResult.Yes:
                 # 非空文件夹 删除多余
-                a = os.listdir(save_folder)
-                for f in a:
+                for f in list_dir:
                     if not f.startswith("."):  # 保留 svn,git 目录
                         sub_path = os.path.join(save_folder, f)
                         if os.path.isdir(sub_path):
