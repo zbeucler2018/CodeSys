@@ -154,18 +154,26 @@ def walk_folder(proj, path, depth=0):
             f_ext = ''
 
         if depth == 0:
-            print('main device: {}'.format(name))
-            try:
-                dev_proj = proj.find(name, False)[0]
-            except ValueError:
-                return False
-            logic_path = os.path.join(sub_path, 'Plc Logic')  # Corrected the path construction
-            sub_proj = dev_proj.find('Plc Logic', False)[0]
-            sub_path = os.path.join(logic_path, 'Application')  # Corrected the path construction
-            sub_proj = sub_proj.find('Application', False)[0]
-            walk_folder(sub_proj, sub_path, depth + 3)
+            if is_folder and f_ext == 'dev':
+                print('main device: {}'.format(name))
+                try:
+                    dev_proj = proj.find(name, False)[0]
+                except ValueError:
+                    system.ui.warning(" !!! Device mismatch !!! ")
+                    return False
+                logic_path = os.path.join(sub_path, 'Plc Logic')
+                sub_proj = dev_proj.find('Plc Logic', False)[0]
+                sub_path = os.path.join(logic_path, 'Application')
+                sub_proj = sub_proj.find('Application', False)[0]
+                walk_folder(sub_proj, sub_path, depth + 3)  # 直接进入 Application
+            else:
+                walk_folder(proj, path, 9999)  # 打破 dev 处理方式，以正常方式处理非 dev 扩展名的 0 层文件
+                break  # 避免由于 0 层文件太多导致的 不必要循环
         else:
-            print('current project directory:    ', proj.get_name())
+            if depth == 9999:
+                print('current project directory:  outside of top-dev')
+            else:
+                print('current project directory:    ', proj.get_name())
             if is_folder:
                 print('input folder: {}{}'.format(' ' * 4, name))
                 if f_ext == 'tc':
