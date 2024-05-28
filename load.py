@@ -124,7 +124,12 @@ def add_textlist(proj, path, name):
         proj = proj.find(name, False)[0]
     except ValueError:
         proj = proj.create_textlist()
-    proj.importfile(path)
+    try:
+        proj.importfile(path)
+        # avoid error: This object is already in use.
+    except Exception as error:
+        print("An error occurred: {}".format(error))
+        pass
 
 
 @check
