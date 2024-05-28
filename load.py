@@ -262,6 +262,6 @@ if __name__ == '__main__':
     if source_folder:
         status = walk_folder(projects.primary, source_folder)
         if status:
-            system.ui.info("status")
+            system.ui.info(" All codes are loaded! ")
         else:
-            system.ui.warning("something went wrong")
+            system.ui.warning(" Something went wrong! ")
