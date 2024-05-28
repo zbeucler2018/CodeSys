@@ -138,6 +138,12 @@ def add_prop_method(proj, path, name):
 
 
 def walk_folder(proj, path, depth=0):
+    if depth == 0:
+        if not any(file.endswith('.dev') for file in os.listdir(path)):
+            system.ui.warning(" !!! Wrong path !!! ")
+            return False
+
+    ## 0 层文件存在 dev 文件夹，则继续，否则退出
     for f_name in os.listdir(path):
         sub_path = os.path.join(path, f_name)
         is_folder = os.path.isdir(sub_path)
@@ -262,11 +268,10 @@ def search_folder():
     print("Nice, you choose: '%s'" % selected_path)
     return selected_path
 
+
 if __name__ == '__main__':
     source_folder = search_folder()
     if source_folder:
         status = walk_folder(projects.primary, source_folder)
         if status:
-            system.ui.info(" All codes are loaded! ")
-        else:
-            system.ui.warning(" Something went wrong! ")
+            system.ui.info(" Source codes are loaded! ")
