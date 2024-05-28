@@ -13,7 +13,7 @@ from System.Windows.Forms import FolderBrowserDialog, DialogResult
 
 '''
 prop_method		= Guid('792f2eb6-721e-4e64-ba20-bc98351056db')
-tp				= Guid('2db5746d-d284-4425-9f7f-2663a34b0ebc') #dut
+dut				= Guid('2db5746d-d284-4425-9f7f-2663a34b0ebc') # struct
 libm			= Guid('adb5cb65-8e1d-4a00-b70a-375ea27582f3')
 method_no_ret	= Guid('f89f7675-27f1-46b3-8abb-b7da8e774ffd')
 act				= Guid('8ac092e5-3128-4e26-9e7e-11016c6684f2')
@@ -69,12 +69,12 @@ type_dist = {
 }
 
 
-def save(text, path, name, tp):
-    if not tp:
-        tp = ''
+def save(text, path, name, extension):
+    if not extension:
+        extension = ''
     else:
-        tp = '.' + tp
-    with open(os.path.join(path, name + tp), 'w') as f:
+        extension = '.' + extension
+    with open(os.path.join(path, name + extension), 'w') as f:
         f.write(text.encode('utf-8'))
 
 
@@ -82,8 +82,8 @@ def print_tree(treeobj, depth, path, verbose=False):
     # record current Path
     cur_path = path
 
-    t = ''  # text
-    tp = ''  # type
+    content = ''  # text
+    type_spec = ''  # type
 
     # get object name
     name = treeobj.get_name(False)
@@ -92,13 +92,13 @@ def print_tree(treeobj, depth, path, verbose=False):
     if not folder_specify: verbose = True
 
     if id in type_dist:
-        tp = type_dist[id]
+        type_spec = type_dist[id]
     else:
         info[id] = name
 
     if treeobj.is_device:
         deviceid = treeobj.get_device_identification()
-        t = 'type=' + str(deviceid.type) + '\nid=' + str(deviceid.id) + '\nver=' + str(deviceid.version)
+        content = 'type=' + str(deviceid.type) + '\nid=' + str(deviceid.id) + '\nver=' + str(deviceid.version)
     elif treeobj.is_folder:
         pass
     elif treeobj.is_task_configuration:
@@ -115,20 +115,20 @@ def print_tree(treeobj, depth, path, verbose=False):
         if verbose:  treeobj.export(os.path.join(cur_path, name + '.tl'))
     else:
         if treeobj.has_textual_declaration:
-            t = t + '(*#-#-#-#-#-#-#-#-#-#---Declaration---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
+            content = content + '(*#-#-#-#-#-#-#-#-#-#---Declaration---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
             a = treeobj.textual_declaration
-            t = t + a.text
+            content = content + a.text
 
         if treeobj.has_textual_implementation:
-            t = t + '(*#-#-#-#-#-#-#-#-#-#---Implementation---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
+            content = content + '(*#-#-#-#-#-#-#-#-#-#---Implementation---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
             a = treeobj.textual_implementation
-            t = t + a.text
+            content = content + a.text
 
     children = treeobj.get_children(False)
 
     if children:
-        if tp:
-            cur_path = os.path.join(cur_path, name + '.' + tp)
+        if type_spec:
+            cur_path = os.path.join(cur_path, name + '.' + type_spec)
         else:
             cur_path = os.path.join(cur_path, name)
         if not os.path.exists(cur_path):
@@ -138,8 +138,8 @@ def print_tree(treeobj, depth, path, verbose=False):
         else:
             verbose = False
 
-    if t and verbose:
-        save(t, cur_path, name, tp)
+    if content and verbose:
+        save(content, cur_path, name, type_spec)
 
     for child in children:
         print_tree(child, depth + 1, cur_path, verbose)
@@ -164,26 +164,26 @@ def search_folder():
 
     has_repo = False  # git
     # 使用 browse_directory_dialog 函数
-    save_folder = browse_directory_dialog("Choose a directory？ 简: 选择保存位置。   ", default_path)
-    print("Nice, you choose: '%s'" % save_folder)
-    list_dir = os.listdir(save_folder)
-    if save_folder:
+    selected_path = browse_directory_dialog("Choose a directory？ 简: 选择保存位置。   ", default_path)
+    print("Nice, you choose: '%s'" % selected_path)
+    list_dir = os.listdir(selected_path)
+    if selected_path:
         if not list_dir:
-            return save_folder
+            return selected_path
         else:
             res = system.ui.prompt("Folder already existed.  !!! Delete !!!   ", PromptChoice.YesNo, PromptResult.Yes)
             if res == PromptResult.Yes:
                 # 非空文件夹 删除多余
                 for f in list_dir:
                     if not f.startswith("."):  # 保留 svn,git 目录
-                        sub_path = os.path.join(save_folder, f)
+                        sub_path = os.path.join(selected_path, f)
                         if os.path.isdir(sub_path):
                             shutil.rmtree(sub_path)
                         else:
                             os.remove(sub_path)
                     elif f == ".git":
                         has_repo = True
-                return save_folder
+                return selected_path
             else:
                 return
     else:
@@ -210,7 +210,7 @@ if __name__ == '__main__':
         # with open(os.path.join(save_folder, 's.txt'), 'w') as f:
         #     f.write(str(info))
     else:
-        system.ui.info("   Just Aborted!  ")
+        system.ui.warning("   Just Aborted!  ")
         print("--- Script exit before saving files. ---")
 
     # if has_repo:
