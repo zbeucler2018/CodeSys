@@ -1,14 +1,21 @@
 # CodeSys
-1. 使用方法:
-    在CodeSys 软件内执行脚本
-2. 脚本说明:
 
-Export.py:
-  将Codesys 内的ST语言的文本数据和Global_var,Textlist 和TaskConfiguration,library 备份到 Save_Folder 文件夹内.如果文件夹内存在.git 文件,则将文件夹更新到HEAD.
+## 使用方法:
+
+在 CodeSys 软件内执行脚本。
+
+## 脚本说明:
+
+`Export.py`:
+
+- [x] 将 Codesys 内的 ST 语言的文本代码 和 Global_var, Textlist 和 Task_Configuration, library 备份到 Save_Folder 文件夹。
+- [x] 将指定的文件夹内的 文本代码 备份到 Save_Folder 文件夹，不指定则为工况全部的文本代码。
+- [x] 若 Save_Folder 文件夹 非空，则提示要删除其中文件，但不包括 `.git` 与 `.svn` 文件。
+- [ ] 如果文件夹内存在.git 文件,则将文件夹更新到HEAD.
   
-Load.py:
-  将上述文件夹内的导入到一个新工程内.
+`Load.py`:
+- [ ] 将上述文件夹内文本代码的导入到当前工程。
   
-3.问题:
-  a. 除ST语言的文本外,其他如:Visu,imagePool,VisuConfiguration,Project Settings,Project Infomation 没有导出.
-  b. GlobalTextList 会丢失ID Column 的数据.
+问题:
+  - 除ST语言的文本外,其他如: Visu,imagePool, VisuConfiguration, Project Settings, Project Infomation 没有导出.
+  - GlobalTextList 会丢失 ID Column 的数据.
