@@ -171,7 +171,8 @@ def search_folder():
         if not list_dir:
             return selected_path
         else:
-            res = system.ui.prompt("Folder already existed.  !!! Delete !!!   ", PromptChoice.YesNo, PromptResult.Yes)
+            res = system.ui.prompt("'" + selected_path + " ', Not empty. ???  Delete ??? ", PromptChoice.YesNo,
+                                   PromptResult.Yes)
             if res == PromptResult.Yes:
                 # 非空文件夹 删除多余
                 for f in list_dir:
