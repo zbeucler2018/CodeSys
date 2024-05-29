@@ -5,9 +5,13 @@ import os
 import shutil
 import clr
 from System import Environment
+import codecs
 
 clr.AddReference('System.Windows.Forms')
 from System.Windows.Forms import FolderBrowserDialog, DialogResult
+
+declaration_intro = '%' + '-' * 75 + '%\r\n%->> Declaration\r\n' + '%' + '-' * 75 + '%\r\n'
+implementation_intro = '%' + '-' * 75 + '%\r\n%->> Implementation\r\n' + '%' + '-' * 75 + '%\r\n'
 
 
 def check(func):
@@ -24,20 +28,22 @@ def check(func):
 
 
 def insert_text(proj, path, name):
-    with open(path, 'r') as f:
+    with codecs.open(path, 'r', encoding='utf-8') as f:
         text = f.read()
-        index = text.find('(*#-#-#-#-#-#-#-#-#-#---Implementation---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n')
+        index = text.find(implementation_intro)
         if index >= 0:
-            t1 = text[index:].replace('(*#-#-#-#-#-#-#-#-#-#---Implementation---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n', '')
-            proj.textual_implementation.replace(t1)
+            implementation = text[index:].replace(implementation_intro, '')
+            proj.textual_implementation.replace(implementation)
             try:
-                t1 = text[:index].replace('(*#-#-#-#-#-#-#-#-#-#---Declaration---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n', '')
-                proj.textual_declaration.replace(t1)
+                declaration = text[:index].replace(declaration_intro, '')
+                proj.textual_declaration.replace(declaration)
+            except AttributeError as error:
+                print("AttributeError: {}".format(error))
             except:
                 pass
         else:
-            t1 = text.replace('(*#-#-#-#-#-#-#-#-#-#---Declaration---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n', '')
-            proj.textual_declaration.replace(t1)
+            declaration = text.replace(implementation_intro, '')
+            proj.textual_declaration.replace(declaration)
 
 
 def create_taskconfig(proj, path, name):

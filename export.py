@@ -11,6 +11,9 @@ from System import Environment
 clr.AddReference('System.Windows.Forms')
 from System.Windows.Forms import FolderBrowserDialog, DialogResult
 
+declaration_intro = '%' + '-' * 75 + '%\n%->> Declaration\n' + '%' + '-' * 75 + '%\n'
+implementation_intro ='%' + '-' * 75 + '%\n%->> Implementation\n' + '%' + '-' * 75 + '%\n'
+
 '''
 prop_method		= Guid('792f2eb6-721e-4e64-ba20-bc98351056db')
 dut				= Guid('2db5746d-d284-4425-9f7f-2663a34b0ebc') # struct
@@ -115,12 +118,12 @@ def print_tree(treeobj, depth, path, verbose=False):
         if verbose:  treeobj.export(os.path.join(cur_path, name + '.tl'))
     else:
         if treeobj.has_textual_declaration:
-            content = content + '(*#-#-#-#-#-#-#-#-#-#---Declaration---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
+            content = content + declaration_intro
             a = treeobj.textual_declaration
             content = content + a.text
 
         if treeobj.has_textual_implementation:
-            content = content + '(*#-#-#-#-#-#-#-#-#-#---Implementation---#-#-#-#-#-#-#-#-#-#-#-#-#*)\r\n'
+            content = content + implementation_intro
             a = treeobj.textual_implementation
             content = content + a.text
 
