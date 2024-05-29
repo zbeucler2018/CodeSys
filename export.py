@@ -12,7 +12,7 @@ clr.AddReference('System.Windows.Forms')
 from System.Windows.Forms import FolderBrowserDialog, DialogResult
 
 declaration_intro = '%' + '-' * 75 + '%\n%->> Declaration\n' + '%' + '-' * 75 + '%\n'
-implementation_intro ='%' + '-' * 75 + '%\n%->> Implementation\n' + '%' + '-' * 75 + '%\n'
+implementation_intro = '%' + '-' * 75 + '%\n%->> Implementation\n' + '%' + '-' * 75 + '%\n'
 
 '''
 prop_method		= Guid('792f2eb6-721e-4e64-ba20-bc98351056db')
@@ -136,7 +136,7 @@ def print_tree(treeobj, depth, path, verbose=False):
             cur_path = os.path.join(cur_path, name)
         if not os.path.exists(cur_path):
             os.makedirs(cur_path)
-        if name == folder_specify:
+        if name in folder_specify:
             verbose = True
         else:
             verbose = False
@@ -198,8 +198,12 @@ if __name__ == '__main__':
     info = {}
     print("--- Saving files in the project: ---")
     print("Now we query a single line string: specified folder name")
-    folder_specify = system.ui.query_string("Which folder to export?  简: 保存谁？   ", text='cal_height_hook')
+    folder_specify = system.ui.query_string("Which folder to export?  简: 指定代码目录？英半角逗号分隔", text='cal_height_hook')
     print("Nice, I get the folder name: %s." % folder_specify)
+
+    # 使用 split 分割字符串并去除空格
+    if folder_specify:
+        folder_specify = [part.strip() for part in folder_specify.split(',')]
 
     save_folder = search_folder()
     # print(save_folder)
