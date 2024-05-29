@@ -171,7 +171,7 @@ def search_folder():
     print("Nice, you choose: '%s'" % selected_path)
     list_dir = os.listdir(selected_path)
     if selected_path:
-        if not list_dir:
+        if not [fd for fd in list_dir if not fd.startswith('.')]:
             return selected_path
         else:
             res = system.ui.prompt("'" + selected_path + " ', Not empty. ???  Delete ??? ", PromptChoice.YesNo,
@@ -189,7 +189,7 @@ def search_folder():
                         has_repo = True
                 return selected_path
             else:
-                return
+                return selected_path
     else:
         return
 
