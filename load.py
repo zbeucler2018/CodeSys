@@ -158,7 +158,7 @@ def walk_folder(proj, path, depth=0):
         except ValueError:
             name = f_name
             f_ext = ''
-
+        if not name: continue
         if depth == 0:
             if is_folder and f_ext == 'dev':
                 print('main device: {}'.format(name))
@@ -255,7 +255,7 @@ def walk_folder(proj, path, depth=0):
                 elif f_ext == 'gtl':
                     add_textlist(proj, sub_path, name)
                 else:
-                    pass
+                    print('!' * 30 + ' Unrecognized file! ')
     return True
 
 
