@@ -4,6 +4,30 @@
 
 在 CodeSys 软件内执行脚本。
 
+1. 菜单执行
+![run_script.png](screenshots/run_script.png)
+
+`export.py`:
+
+1. 选择脚本
+   ![sel_script_ex](screenshots/sel_script_ex.png)
+2. 选择要导出的代码（目录），留空为整个目录
+   ![sel_files_dir](screenshots/sel_files_dir.png)
+3. 选择文件夹（导出到）
+   ![sel_folder_ex](screenshots/sel_folder_ex.png)
+4. 文件夹非空提示，是否删除其中的文件
+   ![tip_export](screenshots/tip_export.png)
+5. 结果信息
+   ![succ_export](screenshots/succ_export.png)
+
+`load.py`:
+1. 选择脚本
+   ![sel_script_im](screenshots/sel_script_im.png)
+2. 选择文件夹（从导入）
+   ![sel_folder_im](screenshots/sel_folder_im.png)
+3. 结果信息
+   ![succ_load](screenshots/succ_load.png)
+
 ## 脚本说明:
 
 `export.py`:
