@@ -82,6 +82,9 @@ def save(text, path, name, extension):
 
 
 def print_tree(treeobj, depth, path, verbose=False):
+    global count
+    global info
+
     # record current Path
     cur_path = path
 
@@ -143,6 +146,7 @@ def print_tree(treeobj, depth, path, verbose=False):
 
     if content and verbose:
         save(content, cur_path, name, type_spec)
+        count = count + 1
 
     for child in children:
         print_tree(child, depth + 1, cur_path, verbose)
@@ -196,6 +200,7 @@ def search_folder():
 
 if __name__ == '__main__':
     info = {}
+    count = 0
     print("--- Saving files in the project: ---")
     print("Now we query a single line string: specified folder name")
     folder_specify = system.ui.query_string("Which folder to export?  简: 指定代码目录？英半角逗号分隔", text='cal_height_hook')
@@ -211,9 +216,10 @@ if __name__ == '__main__':
         for obj in projects.primary.get_children():
             print_tree(obj, 0, save_folder)
         if not folder_specify:
-            system.ui.info(' All codes are exported! ')
+            system.ui.info(' All {} codes are exported! '.format(count))
         else:
-            system.ui.info(' Specified codes are exported! ')
+            system.ui.info(' Specified {} codes are exported! '.format(count))
+
 
         # with open(os.path.join(save_folder, 's.txt'), 'w') as f:
         #     f.write(str(info))
