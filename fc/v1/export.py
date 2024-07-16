@@ -81,6 +81,7 @@ def save(text, path, name, extension):
 
 
 def print_tree(treeobj, depth, path, verbose=False):
+    # recursive tree climbing func
     global count
     global info
 
