@@ -44,7 +44,6 @@ __VisualizationStyle=Guid('8e687a04-7ca7-42d3-be06-fcbda676c5ef')
 ImagePool			=Guid('bb0b9044-714e-4614-ad3e-33cbdf34d16b')
 Project_Information	=Guid('085afe48-c5d8-4ea5-ab0d-b35701fa6009')
 SoftMotion_General_Axis_Pool=Guid('e9159722-55bc-49e5-8034-fbd278ef718f')
-
 '''
 
 type_dist = {
@@ -153,9 +152,11 @@ def print_tree(treeobj, depth, path, verbose=False):
 
 
 def search_folder():
+
+    # get full filepath of the input folder / project folder
     # 获取 MyDocuments 路径
     root = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-    # 目标路径 CsysL
+    # use ~/Documents/CsysL as default path
     default_path = os.path.join(root, 'CsysL')
     if not os.path.exists(default_path): default_path = os.path.join(root)
 
@@ -170,8 +171,9 @@ def search_folder():
         return None
 
     has_repo = False  # git
+    # ask for option
     # 使用 browse_directory_dialog 函数
-    selected_path = browse_directory_dialog("Choose a directory？ 简: 选择保存位置。   ", default_path)
+    selected_path = browse_directory_dialog("Choose a directory 简: 选择保存位置。   ", default_path)
     print("Nice, you choose: '%s'" % selected_path)
     list_dir = os.listdir(selected_path)
     if selected_path:
